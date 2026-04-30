@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financa PRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary: #6366F1;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --chart-card-bg: #EEF2FF;
+            --chart-card-border: #C7D2FE;
+            --text: #1E293B;
+            --text-muted: #64748B;
+            --accent: #10B981;
+            --danger: #EF4444;
+            --border: #E2E8F0;
+            --input-bg: #FFFFFF;
+            --pad-bg: #F1F5F9;
+            --receipt-bg: #F8FAFC;
+        }
+
+        [data-theme="dark"] {
+            --primary: #818CF8;
+            --bg: #0F172A;
+            --card: #1E293B;
+            --chart-card-bg: #1E1B4B; 
+            --chart-card-border: #3730A3;
+            --text: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --input-bg: #0F172A;
+            --pad-bg: #334155;
+            --receipt-bg: #0B1120;
+        }
+
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; transition: 0.3s; }
+
+        nav { background: var(--card); padding: 15px 20px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; transition: 0.3s; }
+        nav a { text-decoration: none; color: var(--text); font-weight: 600; font-size: 14px; cursor: pointer; padding: 8px 16px; border-radius: 10px; transition: 0.3s; }
+        nav a.active { background: var(--primary); color: white; }
+        #btn-darkmode { background: transparent; color: var(--text); border: 1px solid var(--border); width: auto; padding: 8px 16px; margin: 0; border-radius: 10px; cursor: pointer;}
+        #btn-darkmode:hover { background: var(--border); }
+
+        .page { display: none; max-width: 800px; margin: 20px auto; padding: 0 20px; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; transition: 0.3s; }
+        .card-left { text-align: left; }
+        #chart-card { background-color: var(--chart-card-bg); border: 1px solid var(--chart-card-border); }
+
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); background-color: var(--input-bg); color: var(--text); border-radius: 12px; box-sizing: border-box; font-size: 15px; transition: 0.3s; }
+        button { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: 600; width: 100%; transition: 0.2s; margin-top: 5px; }
+        button:hover { opacity: 0.9; transform: scale(0.98); }
+        .btn-green { background: var(--accent); }
+        .btn-delete { background: var(--danger); width: auto; padding: 6px 12px; font-size: 12px; margin: 0; border-radius: 6px; cursor: pointer;}
+
+        .pads-wrapper { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 20px 0; }
+        .pad { padding: 10px 16px; border-radius: 20px; background-color: var(--pad-bg); color: var(--text); cursor: pointer; border: 2px solid transparent; font-size: 14px; transition: all 0.1s; user-select: none; }
+        .pad:hover { filter: brightness(0.9); transform: translateY(-2px); }
+        .pad:active { transform: translateY(2px); background-color: var(--primary); color: white; }
+        .pad.active { background-color: var(--primary); color: white; border-color: var(--primary); font-weight: bold; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.3); }
+
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
+        .product-item { padding: 8px 12px 8px 24px; border-bottom: 1px dashed var(--border); display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted); }
+        
+        .gjendja-totale { font-size: 32px; font-weight: 800; color: var(--accent); margin: 10px 0; transition: color 0.3s; }
+        @keyframes pulseDanger { 0% { color: var(--danger); transform: scale(1); } 50% { color: #991B1B; transform: scale(1.05); } 100% { color: var(--danger); transform: scale(1); } }
+        .danger-pulse { animation: pulseDanger 1s infinite; }
+
+        .progress-container { width: 100%; background-color: var(--border); border-radius: 10px; height: 12px; margin: 20px 0; overflow: hidden; }
+        .progress-bar { height: 100%; background-color: var(--accent); width: 0%; transition: width 0.4s ease, background-color 0.4s; }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--card); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; position: relative; animation: fadeIn 0.3s; text-align: left; }
+        .close-btn { position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+        .close-btn:hover { color: var(--danger); }
+
+        .receipt-box { margin-top: 20px; background: var(--receipt-bg); padding: 15px; border-radius: 12px; border: 1px dashed var(--primary); }
+        .receipt-list { max-height: 250px; overflow-y: auto; margin-bottom: 15px; }
+        .history-receipt { background: var(--receipt-bg); padding: 12px; border-radius: 10px; border: 1px dashed var(--border); margin-top: 10px; }
+
+        #login-screen { height: 100vh; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); position: fixed; width: 100%; top: 0; z-index: 2000; }
+        .login-box { background: var(--card); padding: 40px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); width: 90%; max-width: 350px; text-align: center; }
+
+        /* Filtri */
+        .filter-bar { display: flex; gap: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .filter-select { margin: 0 !important; flex: 1; padding: 10px !important; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-box">
+        <h2>Hyrja</h2>
+        <input type="text" id="log-user" placeholder="Përdoruesi">
+        <input type="password" id="log-pass" placeholder="Fjalëkalimi">
+        <button onclick="login()">Identifikohu</button>
+    </div>
+</div>
+
+<div id="app-container" style="display:none;">
+    <nav>
+        <a onclick="showPage('dashboard')" id="nav-dashboard" class="active">Dashboard</a>
+        <a onclick="showPage('notes')" id="nav-notes">Shënime</a>
+        <a onclick="showPage('settings')" id="nav-settings">Settings</a>
+        <button id="btn-darkmode" onclick="toggleTheme()">🌙 Dark Mode</button>
+        <a onclick="logout()" style="color: #EF4444;">Dil</a>
+    </nav>
+
+    <div id="dashboard" class="page" style="display:block;">
+        
+        <div class="card filter-bar">
+            <span style="font-weight: bold; color: var(--primary);">📅 Analiza:</span>
+            <select id="filter-month" class="filter-select" onchange="updateDashboard()">
+                <option value="all">Të gjithë muajt</option>
+                <option value="0">Janar</option>
+                <option value="1">Shkurt</option>
+                <option value="2">Mars</option>
+                <option value="3">Prill</option>
+                <option value="4">Maj</option>
+                <option value="5">Qershor</option>
+                <option value="6">Korrik</option>
+                <option value="7">Gusht</option>
+                <option value="8">Shtator</option>
+                <option value="9">Tetor</option>
+                <option value="10">Nëntor</option>
+                <option value="11">Dhjetor</option>
+            </select>
+            <select id="filter-year" class="filter-select" onchange="updateDashboard()">
+                <option value="all">Të gjitha vitet</option>
+            </select>
+        </div>
+
+        <div class="card" id="chart-card">
+            <h3 style="margin-top:0; color: var(--text-muted);">Gjendja <span id="gjendja-title-period">Totale</span></h3>
+            <div id="gjendja-totale-ui" class="gjendja-totale">0 Lekë</div>
+            <div style="max-width: 250px; margin: 20px auto;"><canvas id="mainChart"></canvas></div>
+            <div class="progress-container"><div id="budget-progress" class="progress-bar"></div></div>
+            <button class="btn-green" onclick="openIncomeModal()" style="padding: 14px; font-size: 16px;">+ Shto Të Ardhura</button>
+        </div>
+
+        <div class="card card-left">
+            <h3>Shto Shpenzime (Krijo Faturë)</h3>
+            
+            <label>1. Zgjidh Kategorinë:</label>
+            <div id="cat-pads" class="pads-wrapper"></div>
+            
+            <label>2. Kliko Produktet (shtohen automatikisht në faturë):</label>
+            <div id="prod-pads" class="pads-wrapper"><div class="pad" style="opacity: 0.6; cursor: default;">Zgjidh një kategori...</div></div>
+
+            <label style="font-size: 13px; color: var(--text-muted); display: block; margin-top: 15px;">Ose shto një produkt manualisht (jashtë katalogut):</label>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="exp-name" placeholder="Përshkrimi custom" style="flex: 2; min-width: 150px;">
+                <input type="number" id="exp-amount" placeholder="Çmimi (Lekë)" style="flex: 1; min-width: 100px;">
+                <button onclick="addCustomToReceipt()" style="width: auto; height: 46px; padding: 0 20px; margin-top: 0;">Shto Manual</button>
+            </div>
+
+            <div class="receipt-box">
+                <h4 style="margin-top:0; color: var(--primary);">🛒 Fatura e Hapur</h4>
+                <div class="receipt-list" id="receipt-items">
+                    <span style="color:var(--text-muted); font-size: 14px;">Nuk ke shtuar asnjë produkt ende.</span>
+                </div>
+                <div style="text-align: right; font-size: 18px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--primary);">
+                    <b>Totali: <span id="receipt-total" style="color: var(--danger);">0</span> Lekë</b>
+                </div>
+                <button class="btn-green" onclick="saveBulkExpense()" style="margin-top: 15px; width: 100%;">✅ Ruaj të gjithë faturën</button>
+            </div>
+        </div>
+
+        <div class="card card-left">
+            <h3>Historia e Transaksioneve <small style="color:var(--text-muted); font-weight:normal;" id="history-period-title"></small></h3>
+            <div id="transaction-list"></div>
+            <button class="btn-green" style="margin-top:20px;" onclick="generatePDF()">Shkarko Bilancin e Filtrit (PDF)</button>
+        </div>
+    </div>
+
+    <div id="notes" class="page">
+        <div class="card card-left">
+            <h3>Shënime Personale</h3>
+            <textarea id="note-text" placeholder="Shkruaj idetë e tua këtu..." style="height: 100px;"></textarea>
+            <button onclick="addNote()">Shto Shënim</button>
+        </div>
+        <div id="notes-list" class="card-left"></div>
+    </div>
+
+    <div id="settings" class="page">
+        <div class="card card-left">
+            <h3>Katalogu (Kategoritë & Produktet)</h3>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="text" id="new-category-name" placeholder="Emri i Kategorisë së re">
+                <button class="btn-green" onclick="addCategory()" style="width: 150px;">Shto Kategori</button>
+            </div>
+            <hr style="border:0; border-top: 1px solid var(--border); margin: 20px 0;">
+            <h4>Shto produkt në kategori</h4>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <select id="set-cat-select" style="flex: 1; min-width: 150px;"></select>
+                <input type="text" id="new-prod-name" placeholder="Emri i Produktit" style="flex: 1; min-width: 150px;">
+                <input type="number" id="new-prod-price" placeholder="Çmimi (Lekë)" style="flex: 1; min-width: 100px;">
+                <button class="btn-green" onclick="addProductToCatalog()" style="width: auto;">Shto Produkt</button>
+            </div>
+            <h4 style="margin-top: 25px;">Lista aktuale e katalogut:</h4>
+            <div id="catalog-list"></div>
+        </div>
+        <div class="card card-left">
+            <h3>Konfigurimet e Sistemit</h3>
+            <label>Telegram Bot Token</label><input type="text" id="set-tg-token" placeholder="Token i botit">
+            <label>Telegram Chat ID</label><input type="text" id="set-tg-chatid" placeholder="ID e llogarisë tënde">
+            <label>Ndrysho Admin</label><input type="text" id="set-user" placeholder="Admin i ri">
+            <label>Ndrysho Password</label><input type="password" id="set-pass" placeholder="Password i ri">
+            <button onclick="saveSettings()">Ruaj Ndryshimet</button>
+        </div>
+    </div>
+</div>
+
+<div id="income-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeIncomeModal()">&times;</span>
+        <h3 style="margin-top: 0;">Shto Të Ardhura</h3>
+        <input type="text" id="inc-name" placeholder="Burimi (p.sh. Rroga)">
+        <input type="number" id="inc-amount" placeholder="Vlera në Lekë">
+        <button class="btn-green" onclick="addIncome()">Ruaj Shumën</button>
+    </div>
+</div>
+
+<script>
+    let data = {
+        user: "Admin",
+        pass: "1234",
+        tgToken: "",
+        tgChatId: "",
+        catalogue: { "Ushqim": [], "Elektronikë": [], "Transport": [], "Të tjera": [] },
+        transactions: [], 
+        notes: []
+    };
+    
+    let chart;
+    const chartColors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'];
+    
+    let activeCategory = "";
+    let currentReceipt = []; 
+    let isFirstLoad = true; // Ndihmon për të ditur nëse sapo e kemi hapur appin
+
+    function toggleTheme() {
+        const body = document.body;
+        if(body.getAttribute('data-theme') === 'dark') {
+            body.removeAttribute('data-theme');
+            localStorage.setItem('financa_theme', 'light');
+            document.getElementById('btn-darkmode').innerText = '🌙 Dark Mode';
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            localStorage.setItem('financa_theme', 'dark');
+            document.getElementById('btn-darkmode').innerText = '☀️ Light Mode';
+        }
+        if(chart) {
+            chart.options.plugins.legend.labels.color = getComputedStyle(document.body).getPropertyValue('--text').trim();
+            chart.update();
+        }
+    }
+
+    function init() {
+        if(localStorage.getItem('financa_theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('btn-darkmode').innerText = '☀️ Light Mode';
+        }
+
+        const saved = localStorage.getItem('financa_pro_data');
+        if (saved) {
+            let parsed = JSON.parse(saved);
+            if (parsed.categories && !parsed.catalogue) {
+                parsed.catalogue = {};
+                parsed.categories.forEach(c => parsed.catalogue[c] = []);
+                delete parsed.categories; 
+            }
+            data = { ...data, ...parsed };
+        }
+
+        data.transactions.forEach(t => {
+            if(!t.timestamp) t.timestamp = Date.now(); 
+        });
+        
+        populateYearFilter();
+
+        // Vendos muajin dhe vitin aktual nëse është hera e parë që hapet (Refresh i faqes)
+        if (isFirstLoad) {
+            const currentDate = new Date();
+            document.getElementById('filter-month').value = currentDate.getMonth().toString();
+            document.getElementById('filter-year').value = currentDate.getFullYear().toString();
+            isFirstLoad = false;
+        }
+
+        refreshCatalogUI();
+        updateDashboard();
+        renderNotes();
+        renderReceipt();
+    }
+
+    function login() {
+        const u = document.getElementById('log-user').value;
+        const p = document.getElementById('log-pass').value;
+        if (u === data.user && p === data.pass) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            initChart();
+            document.getElementById('set-tg-token').value = data.tgToken || "";
+            document.getElementById('set-tg-chatid').value = data.tgChatId || "";
+        } else { alert("Kredencialet e gabuara!"); }
+    }
+    function logout() { location.reload(); }
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        document.getElementById(pageId).style.display = 'block';
+        document.getElementById('nav-' + pageId).classList.add('active');
+    }
+
+    // --- FILTRIMI ---
+    function populateYearFilter() {
+        const yearSelect = document.getElementById('filter-year');
+        let years = new Set();
+        
+        // Sigurohemi që viti aktual të jetë gjithmonë i disponueshëm
+        const currentYear = new Date().getFullYear();
+        years.add(currentYear); 
+        
+        data.transactions.forEach(t => {
+            if(t.timestamp) years.add(new Date(t.timestamp).getFullYear());
+        });
+        
+        let currentSelected = yearSelect.value;
+        let options = '<option value="all">Të gjitha vitet</option>';
+        
+        Array.from(years).sort().reverse().forEach(y => {
+            options += `<option value="${y}">${y}</option>`;
+        });
+        
+        yearSelect.innerHTML = options;
+        
+        if(currentSelected && Array.from(yearSelect.options).some(opt => opt.value === currentSelected)) {
+            yearSelect.value = currentSelected;
+        } else {
+            yearSelect.value = currentYear.toString();
+        }
+    }
+
+    function getFilteredTransactions() {
+        const fMonth = document.getElementById('filter-month').value;
+        const fYear = document.getElementById('filter-year').value;
+
+        return data.transactions.filter(t => {
+            let d = new Date(t.timestamp);
+            let matchM = fMonth === 'all' || d.getMonth().toString() === fMonth;
+            let matchY = fYear === 'all' || d.getFullYear().toString() === fYear;
+            return matchM && matchY;
+        });
+    }
+
+    // --- PADS & KATALOGU ---
+    function refreshCatalogUI() {
+        renderCatPads();
+        renderCatalogList();
+        document.getElementById('set-cat-select').innerHTML = Object.keys(data.catalogue).map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    }
+
+    function renderCatPads() {
+        const catContainer = document.getElementById('cat-pads');
+        const categories = Object.keys(data.catalogue);
+        if(categories.length === 0) { catContainer.innerHTML = '<div class="pad" style="opacity:0.6;">Nuk ka kategori.</div>'; return; }
+        catContainer.innerHTML = categories.map(cat => `<div class="pad ${cat === activeCategory ? 'active' : ''}" onclick="selectCategory('${cat}')">${cat}</div>`).join('');
+        renderProdPads();
+    }
+
+    function selectCategory(catName) {
+        activeCategory = catName;
+        renderCatPads(); 
+    }
+
+    function renderProdPads() {
+        const prodContainer = document.getElementById('prod-pads');
+        if (!activeCategory) { prodContainer.innerHTML = '<div class="pad" style="opacity:0.6; cursor:default;">Zgjidh kategorinë...</div>'; return; }
+        const products = data.catalogue[activeCategory];
+        if (products && products.length > 0) {
+            prodContainer.innerHTML = products.map((prod, idx) => `<div class="pad" onclick="selectProduct(${idx})">${prod.name} (${prod.price} L)</div>`).join('');
+        } else { prodContainer.innerHTML = '<div class="pad" style="opacity:0.6; cursor:default;">Nuk ka produkte.</div>'; }
+    }
+
+    function selectProduct(idx) {
+        const product = data.catalogue[activeCategory][idx];
+        let existingItem = currentReceipt.find(i => i.name === product.name && i.cat === activeCategory && i.price === product.price);
+
+        if(existingItem) {
+            existingItem.qty += 1;
+            existingItem.total = existingItem.qty * existingItem.price;
+        } else {
+            currentReceipt.push({ name: product.name, price: product.price, cat: activeCategory, qty: 1, total: product.price });
+        }
+        renderReceipt();
+    }
+
+    function addCustomToReceipt() {
+        const name = document.getElementById('exp-name').value.trim();
+        const price = parseFloat(document.getElementById('exp-amount').value);
+        if(!activeCategory) { alert("Të lutem zgjidh një kategori nga butonat lart fillimisht!"); return; }
+        if(!name || isNaN(price) || price <= 0) { alert("Plotëso emrin dhe një çmim të saktë!"); return; }
+
+        let existingItem = currentReceipt.find(i => i.name === name && i.cat === activeCategory && i.price === price);
+        if(existingItem) {
+            existingItem.qty += 1;
+            existingItem.total = existingItem.qty * existingItem.price;
+        } else {
+            currentReceipt.push({ name: name, price: price, cat: activeCategory, qty: 1, total: price });
+        }
+        document.getElementById('exp-name').value = '';
+        document.getElementById('exp-amount').value = '';
+        renderReceipt();
+    }
+
+    function renderReceipt() {
+        const container = document.getElementById('receipt-items');
+        let finalTotal = 0;
+        if (currentReceipt.length === 0) {
+            container.innerHTML = "<span style='color:var(--text-muted); font-size: 14px;'>Nuk ke shtuar asnjë produkt ende.</span>";
+        } else {
+            container.innerHTML = currentReceipt.map((item, idx) => {
+                finalTotal += item.total;
+                return `
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border); align-items: center;">
+                    <div><span style="font-weight:bold; color:var(--primary); margin-right:5px;">${item.qty}x</span><span>${item.name} <span style="color:var(--text-muted); font-size: 12px;">(${item.cat})</span></span></div>
+                    <div><span><b>${item.total} L</b></span><button class="btn-delete" style="padding: 2px 6px; margin-left: 10px;" onclick="removeFromReceipt(${idx})">x</button></div>
+                </div>`;
+            }).join('');
+        }
+        document.getElementById('receipt-total').innerText = finalTotal;
+    }
+
+    function removeFromReceipt(idx) { currentReceipt.splice(idx, 1); renderReceipt(); }
+
+    function saveBulkExpense() {
+        if(currentReceipt.length === 0) { alert("Fatura është bosh!"); return; }
+        let totalBulk = currentReceipt.reduce((sum, item) => sum + item.total, 0);
+        let summaryText = "";
+
+        data.transactions.push({
+            type: 'receipt',
+            items: [...currentReceipt],
+            amount: totalBulk,
+            date: new Date().toLocaleString(),
+            timestamp: Date.now() 
+        });
+
+        currentReceipt.forEach(item => { summaryText += `\n- ${item.qty}x ${item.name}: ${item.total}L`; });
+
+        saveAndRefresh();
+        sendTelegramMessage(`🧾 Faturë e re: ${totalBulk} Lekë${summaryText}`);
+        
+        currentReceipt = [];
+        activeCategory = "";
+        renderCatPads();
+        renderReceipt();
+    }
+
+    // --- FUNKSIONET E DASHBOARD & HISTORISË ---
+    function openIncomeModal() { document.getElementById('income-modal').style.display = 'flex'; }
+    function closeIncomeModal() { document.getElementById('income-modal').style.display = 'none'; }
+    function addIncome() {
+        const name = document.getElementById('inc-name').value;
+        const amount = parseFloat(document.getElementById('inc-amount').value);
+        if (name && amount) { 
+            data.transactions.push({ type: 'income', name, amount, date: new Date().toLocaleString(), timestamp: Date.now() }); 
+            saveAndRefresh(); 
+            sendTelegramMessage(`💰 Të Ardhura: ${amount} Lekë\nBurimi: ${name}`); 
+            document.getElementById('inc-name').value = ''; 
+            document.getElementById('inc-amount').value = ''; 
+            closeIncomeModal(); 
+        }
+    }
+
+    function updateDashboard() {
+        const filteredTransactions = getFilteredTransactions();
+        let totalIncome = 0; let totalExpense = 0;
+        const listContainer = document.getElementById('transaction-list');
+        listContainer.innerHTML = '';
+
+        [...filteredTransactions].reverse().forEach(t => {
+            if (t.type === 'income') {
+                totalIncome += t.amount;
+                listContainer.innerHTML += `<div class="list-item"><span>🟢 ${t.name}</span><b style="color: var(--accent)">+${t.amount} Lekë</b></div>`;
+            } else if (t.type === 'expense') {
+                totalExpense += t.amount;
+                listContainer.innerHTML += `<div class="list-item"><span>🔴 ${t.name} <small>(${t.cat})</small></span><b style="color: var(--danger)">-${t.amount} Lekë</b></div>`;
+            } else if (t.type === 'receipt') {
+                totalExpense += t.amount;
+                let itemsHtml = t.items.map(i => `<div style="font-size:13px; color:var(--text-muted); display:flex; justify-content:space-between; margin-bottom: 3px;"><span>${i.qty}x ${i.name} <small>(${i.cat})</small></span><span>${i.total} L</span></div>`).join('');
+                listContainer.innerHTML += `
+                <div class="list-item" style="flex-direction:column; align-items:stretch;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <span>🧾 <b>Faturë</b> <small style="color:var(--text-muted);">${t.date.split(',')[0]}</small></span>
+                        <b style="color:var(--danger)">-${t.amount} Lekë</b>
+                    </div>
+                    <div class="history-receipt">
+                        ${itemsHtml}
+                        <div style="text-align:right; border-top:1px solid var(--border); margin-top:5px; padding-top:5px;"><b>Total: ${t.amount} L</b></div>
+                    </div>
+                </div>`;
+            }
+        });
+
+        if(filteredTransactions.length === 0) {
+            listContainer.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted);">Nuk ka të dhëna për këtë periudhë.</div>`;
+        }
+
+        const gjendjaUI = document.getElementById('gjendja-totale-ui');
+        gjendjaUI.innerText = `${totalIncome - totalExpense} Lekë`;
+        
+        const fMonth = document.getElementById('filter-month');
+        const fYear = document.getElementById('filter-year');
+        let periodText = (fMonth.value !== 'all' || fYear.value !== 'all') ? `(${fMonth.options[fMonth.selectedIndex].text} ${fYear.value !== 'all' ? fYear.value : ''})` : '';
+        document.getElementById('gjendja-title-period').innerText = periodText ? periodText : 'Totale';
+        document.getElementById('history-period-title').innerText = periodText;
+
+        const progressBar = document.getElementById('budget-progress');
+        let percentage = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : (totalExpense > 0 ? 100 : 0);
+        if (percentage > 100) percentage = 100;
+        progressBar.style.width = `${percentage}%`;
+        if (percentage >= 80 && totalIncome > 0) { progressBar.style.backgroundColor = "var(--danger)"; gjendjaUI.classList.add('danger-pulse'); } else { progressBar.style.backgroundColor = "var(--accent)"; gjendjaUI.classList.remove('danger-pulse'); }
+        updateChart();
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        const textColor = getComputedStyle(document.body).getPropertyValue('--text').trim();
+        chart = new Chart(ctx, { type: 'doughnut', data: { labels: [], datasets: [{ data: [], backgroundColor: chartColors, borderWidth: 0 }] }, options: { responsive: true, cutout: '75%', plugins: { legend: { position: 'bottom', labels: { color: textColor } } } } });
+        updateChart();
+    }
+
+    function updateChart() {
+        if (!chart) return;
+        let totals = {};
+        Object.keys(data.catalogue).forEach(cat => totals[cat] = 0);
+        
+        const filteredTransactions = getFilteredTransactions();
+
+        filteredTransactions.forEach(t => { 
+            if (t.type === 'expense') { 
+                if(totals[t.cat] !== undefined) totals[t.cat] += t.amount; else totals['Të tjera'] = (totals['Të tjera'] || 0) + t.amount; 
+            } else if (t.type === 'receipt') {
+                t.items.forEach(item => {
+                    if(totals[item.cat] !== undefined) totals[item.cat] += item.total; else totals['Të tjera'] = (totals['Të tjera'] || 0) + item.total; 
+                });
+            }
+        });
+
+        chart.data.labels = Object.keys(totals);
+        chart.data.datasets[0].data = Object.values(totals);
+        chart.data.datasets[0].backgroundColor = Object.keys(totals).map((_, i) => chartColors[i % chartColors.length]);
+        chart.update();
+    }
+
+    // --- PDF dhe Settings ---
+    async function generatePDF() {
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
+        
+        const fMonth = document.getElementById('filter-month');
+        const fYear = document.getElementById('filter-year');
+        let periodText = (fMonth.value !== 'all' || fYear.value !== 'all') ? `Periudha: ${fMonth.options[fMonth.selectedIndex].text} ${fYear.value !== 'all' ? fYear.value : ''}` : 'E gjithë kohës';
+
+        doc.setFontSize(18); doc.text("Raporti i Financave", 14, 20); 
+        doc.setFontSize(10); 
+        doc.text(`Gjeneruar më: ${new Date().toLocaleString()}`, 14, 28);
+        doc.text(periodText, 14, 34);
+        
+        const rows = [];
+        getFilteredTransactions().forEach(t => {
+            if(t.type === 'income' || t.type === 'expense') {
+                rows.push([t.date.split(',')[0], t.type === 'income' ? 'Të Ardhura' : 'Shpenzim', t.name, t.amount + " L"]);
+            } else if(t.type === 'receipt') {
+                t.items.forEach(i => {
+                    rows.push([t.date.split(',')[0], 'Faturë', `${i.qty}x ${i.name} (${i.cat})`, i.total + " L"]);
+                });
+            }
+        });
+
+        doc.autoTable({ startY: 40, head: [['Data', 'Lloji', 'Përshkrimi/Artikulli', 'Vlera']], body: rows }); doc.save("Bilanci.pdf");
+    }
+
+    function addCategory() { const newCat = document.getElementById('new-category-name').value.trim(); if (newCat && !data.catalogue[newCat]) { data.catalogue[newCat] = []; saveAndRefresh(); document.getElementById('new-category-name').value = ''; } }
+    function addProductToCatalog() { const cat = document.getElementById('set-cat-select').value; const name = document.getElementById('new-prod-name').value.trim(); const price = parseFloat(document.getElementById('new-prod-price').value); if (cat && name && !isNaN(price)) { data.catalogue[cat].push({ name, price }); saveAndRefresh(); document.getElementById('new-prod-name').value = ''; document.getElementById('new-prod-price').value = ''; } }
+    function renderCatalogList() { document.getElementById('catalog-list').innerHTML = Object.keys(data.catalogue).map(cat => { const products = data.catalogue[cat].map((prod, idx) => `<div class="product-item"><span>└ ${prod.name}</span><span><b>${prod.price} Lekë</b><button class="btn-delete" style="margin-left:10px; padding:2px 6px;" onclick="deleteProduct('${cat}', ${idx})">x</button></span></div>`).join(''); return `<div style="background: var(--bg); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden;"><div class="list-item" style="border-bottom: ${products ? '1px solid var(--border)' : 'none'};"><b>${cat}</b><button class="btn-delete" onclick="deleteCategory('${cat}')">Fshi Kategorinë</button></div>${products}</div>`; }).join(''); }
+    function deleteCategory(catName) { if(confirm(`Do fshini kategorinë "${catName}"?`)) { if(activeCategory === catName) activeCategory = ""; delete data.catalogue[catName]; saveAndRefresh(); } }
+    function deleteProduct(catName, prodIndex) { data.catalogue[catName].splice(prodIndex, 1); saveAndRefresh(); }
+
+    function sendTelegramMessage(text) { if (!data.tgToken || !data.tgChatId) return; fetch(`https://api.telegram.org/bot${data.tgToken}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: data.tgChatId, text: text }) }); }
+    function addNote() { const text = document.getElementById('note-text').value; if (text) { data.notes.push({ text, date: new Date().toLocaleString() }); saveAndRefresh(); document.getElementById('note-text').value = ''; } }
+    function renderNotes() { document.getElementById('notes-list').innerHTML = data.notes.map((n, index) => `<div class="card card-left"><div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 10px;"><small style="color: var(--text-muted);">${n.date}</small><button class="btn-delete" onclick="data.notes.splice(${index}, 1); saveAndRefresh();">Fshi</button></div><p style="margin: 0; white-space: pre-wrap;">${n.text}</p></div>`).join(''); }
+    function saveSettings() { const newUser = document.getElementById('set-user').value; const newPass = document.getElementById('set-pass').value; data.tgToken = document.getElementById('set-tg-token').value; data.tgChatId = document.getElementById('set-tg-chatid').value; if (newUser) data.user = newUser; if (newPass) data.pass = newPass; saveAndRefresh(); alert("Cilësimet u ruajtën!"); }
+    
+    function saveAndRefresh() { 
+        localStorage.setItem('financa_pro_data', JSON.stringify(data)); 
+        populateYearFilter(); 
+        refreshCatalogUI(); 
+        updateDashboard(); 
+        if(document.getElementById('notes').style.display === 'block') { renderNotes(); } 
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
