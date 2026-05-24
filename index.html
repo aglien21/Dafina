@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>IPTV iOS Edition</title>
+    <title>IPTV Pro iOS</title>
     
     <link href="https://vjs.zencdn.net/8.3.0/video-js.css" rel="stylesheet" />
     <script src="https://vjs.zencdn.net/8.3.0/video.min.js"></script>
@@ -15,7 +15,7 @@
             --bg-base: #000000;
             --bg-card: #1c1c1e;
             --bg-hover: #2c2c2e;
-            --accent: #0a84ff; /* Ngjyra blu e iOS */
+            --accent: #0a84ff;
             --text-main: #ffffff;
             --text-muted: #8e8e93;
             --border: #38383a;
@@ -26,14 +26,12 @@
         body { 
             background-color: var(--bg-base); color: var(--text-main); 
             height: 100vh; overflow: hidden; display: flex; flex-direction: column;
-            /* Shmangie e Notch-it në iPhone */
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
         }
 
-        /* --- EKRANI I LOGIMIT PËR MOBILE --- */
         .screen { display: none; height: 100%; width: 100%; flex-direction: column; }
         .screen.active { display: flex; }
 
@@ -45,7 +43,6 @@
         }
         .login-box h2 { text-align: center; margin-bottom: 20px; font-weight: 600; font-size: 22px; }
         
-        /* Tabs të lëvizshëm për ekrane të ngushta */
         .tabs { 
             display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; 
             overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
@@ -65,8 +62,7 @@
         .input-group label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
         .input-group input { 
             width: 100%; padding: 15px; background: #000; border: 1px solid var(--border); 
-            color: white; border-radius: 12px; font-size: 16px; /* 16px parandalon zmadhimin auto në iOS */
-            outline: none; -webkit-appearance: none;
+            color: white; border-radius: 12px; font-size: 16px; outline: none; -webkit-appearance: none;
         }
         .input-group input:focus { border-color: var(--accent); }
         
@@ -79,10 +75,8 @@
         .remember-wrapper { display: flex; align-items: center; margin-bottom: 20px; font-size: 14px; color: var(--text-muted); }
         .remember-wrapper input { margin-right: 10px; width: 18px; height: 18px; }
 
-        /* --- NDËRFAQJA E APLIKACIONIT (MOBILE LAYOUT) --- */
         #main-app { flex-direction: column; background: #000; }
 
-        /* 1. Video Player i fiksuar lart */
         .video-section { 
             width: 100%; aspect-ratio: 16/9; background: #000; 
             position: relative; z-index: 10; border-bottom: 1px solid var(--border);
@@ -91,7 +85,6 @@
         .video-wrapper { flex: 1; position: relative; }
         .video-js { width: 100%; height: 100%; }
         
-        /* Shiriti i veglave nën video (Përfshin butonin Fullscreen) */
         .player-toolbar { 
             display: flex; justify-content: space-between; align-items: center; 
             padding: 10px 15px; background: var(--bg-card); border-bottom: 1px solid var(--border);
@@ -102,7 +95,6 @@
             border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
         }
 
-        /* 2. Lista e Kanaleve poshtë videos */
         .content-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .content-header { 
             display: flex; justify-content: space-between; align-items: center; 
@@ -111,14 +103,11 @@
         .content-header h3 { font-size: 16px; font-weight: 600; }
         
         .list-area { flex: 1; overflow-y: auto; padding: 0 15px; -webkit-overflow-scrolling: touch; }
-        .list-item { 
-            display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); cursor: pointer;
-        }
+        .list-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
         .list-item:active { opacity: 0.5; }
         .item-logo { width: 40px; height: 40px; border-radius: 8px; background: var(--bg-hover); margin-right: 15px; object-fit: contain; }
         .item-title { font-size: 15px; font-weight: 500; }
 
-        /* 3. Menuja Anësore (Kategoritë & Settings) - Rrëshqet nga e majta */
         .sidebar-menu { 
             position: absolute; top: 0; left: -100%; width: 85%; max-width: 320px; height: 100%; 
             background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -127,23 +116,18 @@
         }
         .sidebar-menu.open { left: 0; }
         
-        .sidebar-header { 
-            padding: 20px; border-bottom: 1px solid var(--border); 
-            display: flex; justify-content: space-between; align-items: center;
-        }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .close-btn { background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; }
         
         .category-list { flex: 1; overflow-y: auto; padding: 10px 0; -webkit-overflow-scrolling: touch; }
         .cat-item { padding: 15px 20px; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .cat-item:active { background: var(--bg-hover); }
 
-        /* Sfond i errët kur hapet menuja */
         .overlay { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.6); z-index: 20; display: none; opacity: 0; transition: opacity 0.3s;
         }
         .overlay.active { display: block; opacity: 1; }
-
     </style>
 </head>
 <body>
@@ -218,8 +202,7 @@
                 <h3 id="current-category">Të Gjitha</h3>
             </div>
             
-            <div class="list-area" id="channels-list">
-                </div>
+            <div class="list-area" id="channels-list"></div>
             
             <div class="overlay" id="menu-overlay" onclick="toggleMenu()"></div>
             <div class="sidebar-menu" id="side-menu">
@@ -227,8 +210,7 @@
                     <h2>Menuja</h2>
                     <button class="close-btn" onclick="toggleMenu()">×</button>
                 </div>
-                <div class="category-list" id="categories-list">
-                    </div>
+                <div class="category-list" id="categories-list"></div>
                 <div style="padding: 20px; border-top: 1px solid var(--border);">
                     <button class="btn-submit" style="background: #ff3b30;" onclick="logout()">Dil nga Llogaria</button>
                 </div>
@@ -242,10 +224,10 @@
         let allChannels = [];   
         let vjsPlayer = null;
 
+        // Fillo VideoJS dhe lexo memorien e ruajtur
         window.onload = () => {
             vjsPlayer = videojs('iptv-player');
             
-            // Formatues automatik për MAC 
             document.getElementById('mac-address').addEventListener('input', function (e) {
                 let val = e.target.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
                 let newVal = '';
@@ -256,24 +238,26 @@
                 e.target.value = newVal;
             });
 
-            // Lexo të dhënat e ruajtura
             const savedData = localStorage.getItem('iptv_ios_creds');
             if (savedData) {
-                const data = JSON.parse(savedData);
-                switchTab(data.method);
-                if(data.method === 'm3u') document.getElementById('m3u-url').value = data.url;
-                if(data.method === 'xtream') {
-                    document.getElementById('xtream-url').value = data.url;
-                    document.getElementById('xtream-user').value = data.user;
-                    document.getElementById('xtream-pass').value = data.pass;
-                }
-                if(data.method === 'mac') {
-                    document.getElementById('mac-url').value = data.url;
-                    document.getElementById('mac-address').value = data.mac;
-                }
+                try {
+                    const data = JSON.parse(savedData);
+                    switchTab(data.method);
+                    if(data.method === 'm3u') document.getElementById('m3u-url').value = data.url;
+                    if(data.method === 'xtream') {
+                        document.getElementById('xtream-url').value = data.url;
+                        document.getElementById('xtream-user').value = data.user;
+                        document.getElementById('xtream-pass').value = data.pass;
+                    }
+                    if(data.method === 'mac') {
+                        document.getElementById('mac-url').value = data.url;
+                        document.getElementById('mac-address').value = data.mac;
+                    }
+                } catch (e) {}
             }
         };
 
+        // Ndërrimi i Tab-eve të Logimit
         function switchTab(type) {
             currentTab = type;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -283,6 +267,7 @@
             document.getElementById(`form-${type}`).classList.add('active');
         }
 
+        // Komanda kur shtypet butoni "Hyr"
         function processLogin() {
             const remember = document.getElementById('remember-me').checked;
             let creds = { method: currentTab };
@@ -312,51 +297,40 @@
             if(currentTab === 'm3u') {
                 loadM3U(creds.url);
             } else {
-                alert("Xtream dhe MAC kërkojnë server backend për të anashkaluar CORS. Po kalojmë në ekranin kryesor...");
+                alert("Xtream dhe MAC kërkojnë backend. Po kalojmë në ekranin kryesor...");
                 document.getElementById('login-screen').classList.remove('active');
                 document.getElementById('main-app').classList.add('active');
             }
         }
 
+        // Funksioni thelbësor me Cloudflare Proxy tëndin
         async function loadM3U(url) {
-    // VENDOS LINKUN E CLOUDFLARE KËTU (Zëvendëso URL-në me tënden dhe lëre '?url=' në fund)
-    const proxyUrl = 'e2c6.aglien21.workers.dev/?url=' + encodeURIComponent(url);
+            // INTEGRIMI I CLOUDFLARE WORKER TËND: e2c6.aglien21.workers.dev
+            const proxyUrl = 'https://e2c6.aglien21.workers.dev/?url=' + encodeURIComponent(url);
 
-    try {
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error("Network error nga Proxy");
-        
-        const text = await response.text();
-        
-        if (!text.includes('#EXTM3U') && !text.includes('#EXTINF')) {
-            throw new Error("Lista M3U e pavlefshme");
+            try {
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error("Gabim nga Cloudflare Proxy");
+                
+                const text = await response.text();
+                
+                if (!text.includes('#EXTM3U') && !text.includes('#EXTINF')) {
+                    throw new Error("Përgjigjja nuk është listë e vlefshme M3U. Kontrollo lidhjen e Worker.");
+                }
+
+                parseData(text);
+                
+                document.getElementById('login-screen').classList.remove('active');
+                document.getElementById('main-app').classList.add('active');
+                
+            } catch (err) {
+                console.error(err);
+                alert("Gabim gjatë lidhjes: " + err.message);
+                document.getElementById('login-btn').innerText = "Hyr në Aplikacion";
+            }
         }
 
-        parseData(text);
-        
-        document.getElementById('login-screen').classList.remove('active');
-        document.getElementById('main-app').classList.add('active');
-        
-    } catch (err) {
-        console.error(err);
-        alert("Gabim gjatë lidhjes. Provo përsëri.");
-        document.getElementById('login-btn').innerText = "Hyr në Aplikacion";
-    }
-}
-
-        // 3. Përpuno të dhënat dhe hap aplikacionin
-        parseData(text);
-        
-        document.getElementById('login-screen').classList.remove('active');
-        document.getElementById('main-app').classList.add('active');
-        
-    } catch (err) {
-        console.error("Detajet e gabimit:", err);
-        alert("Lista nuk mund të shkarkohet. Proxy dështoi ose ofruesi yt i IPTV-së i ka bllokuar VPN/Proxy-t publike.");
-        document.getElementById('login-btn').innerText = "Hyr në Aplikacion";
-    }
-}
-
+        // Dekodimi i listës M3U
         function parseData(text) {
             categoriesData = {}; allChannels = [];
             const lines = text.split('\n');
@@ -387,7 +361,7 @@
             displayChannels(allChannels, "Të Gjitha");
         }
 
-        // Funksioni për hapjen/mbylljen e menusë anësore
+        // Hap/Mbyll Menunë Anësore
         function toggleMenu() {
             const menu = document.getElementById('side-menu');
             const overlay = document.getElementById('menu-overlay');
@@ -395,19 +369,19 @@
             overlay.classList.toggle('active');
         }
 
+        // Krijimi i Kategorive
         function buildSidebar() {
             const list = document.getElementById('categories-list');
             list.innerHTML = '';
             
             const groups = Object.keys(categoriesData).sort();
             
-            // Butoni 'Të Gjitha'
             const allBtn = document.createElement('div');
             allBtn.className = 'cat-item';
             allBtn.innerText = `Të Gjitha Kanalet (${allChannels.length})`;
             allBtn.onclick = () => {
                 displayChannels(allChannels, "Të Gjitha");
-                toggleMenu(); // Mbyll menunë pas klikimit
+                toggleMenu();
             };
             list.appendChild(allBtn);
 
@@ -423,6 +397,7 @@
             });
         }
 
+        // Shfaqja e Kanaleve
         function displayChannels(channels, categoryName) {
             document.getElementById('current-category').innerText = categoryName;
             const list = document.getElementById('channels-list');
@@ -443,11 +418,10 @@
                 item.onclick = () => startVideo(ch);
                 list.appendChild(item);
             });
-            // Ktheje scroll-in në fillim
             list.scrollTop = 0;
         }
 
-        // Funksioni thelbësor i Videos dhe Fullscreen
+        // Luajtja e videos
         function startVideo(channel) {
             document.getElementById('now-playing').innerText = channel.name;
             
@@ -456,14 +430,12 @@
             if(channel.url.includes('.ts')) vType = "video/mp2t";
 
             vjsPlayer.src({ src: channel.url, type: vType });
-            vjsPlayer.play().catch(e => console.log("iOS kërkon ndërveprim për të luajtur"));
+            vjsPlayer.play().catch(e => console.log("Kërkohet veprim manual"));
         }
 
-        // --- FULLSCREEN PËR iOS DHE SHFETUES TË TJERË ---
+        // Ekrani i plotë
         function goFullscreen() {
             if (!vjsPlayer) return;
-            
-            // Video.js ka funksionet e veta për të thirrur fullscreen native
             if (vjsPlayer.isFullscreen()) {
                 vjsPlayer.exitFullscreen();
             } else {
@@ -471,6 +443,7 @@
             }
         }
 
+        // Dalja nga llogaria
         function logout() {
             localStorage.removeItem('iptv_ios_creds');
             location.reload();
