@@ -319,22 +319,30 @@
         }
 
         async function loadM3U(url) {
-    // 1. Kalojmë linkun tënd përmes një CORS Proxy ndërmjetës
-    // Përdorim 'allorigins' që është shumë i qëndrueshëm për skedarë teksti si M3U
-    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+    // VENDOS LINKUN E CLOUDFLARE KËTU (Zëvendëso URL-në me tënden dhe lëre '?url=' në fund)
+    const proxyUrl = 'e2c6.aglien21.workers.dev/?url=' + encodeURIComponent(url);
 
     try {
-        // 2. Kërkojmë listën përmes Proxy-t në vend të linkut direkt
         const response = await fetch(proxyUrl);
-        
-        if (!response.ok) throw new Error("Gabim gjatë shkarkimit nga Proxy");
+        if (!response.ok) throw new Error("Network error nga Proxy");
         
         const text = await response.text();
         
-        // Nëse lista është bosh ose proxy ktheu gabim HTML, ndaloje
         if (!text.includes('#EXTM3U') && !text.includes('#EXTINF')) {
-            throw new Error("Përgjigjja nuk është një listë e vlefshme M3U");
+            throw new Error("Lista M3U e pavlefshme");
         }
+
+        parseData(text);
+        
+        document.getElementById('login-screen').classList.remove('active');
+        document.getElementById('main-app').classList.add('active');
+        
+    } catch (err) {
+        console.error(err);
+        alert("Gabim gjatë lidhjes. Provo përsëri.");
+        document.getElementById('login-btn').innerText = "Hyr në Aplikacion";
+    }
+}
 
         // 3. Përpuno të dhënat dhe hap aplikacionin
         parseData(text);
