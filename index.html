@@ -306,7 +306,7 @@
         // Funksioni thelbësor me Cloudflare Proxy tëndin
         async function loadM3U(url) {
             // INTEGRIMI I CLOUDFLARE WORKER TËND: e2c6.aglien21.workers.dev
-            const proxyUrl = 'https://e2c6.aglien21.workers.dev/?url=' + encodeURIComponent(url);
+            const proxyUrl = 'https://plain-wood-e2c6.aglien21.workers.dev/?url=' + encodeURIComponent(url);
 
             try {
                 const response = await fetch(proxyUrl);
