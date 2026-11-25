@@ -22,6 +22,7 @@ Web app e thjeshtë për oraret shkollore dhe kujtuesin e marrjes së fëmijëve
 | `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `favicon.ico` | Ikona me emrat **Jon** dhe **Ian** |
 | `kujtuesit-shkolles.ics` | Kujtimet për Apple / Google Calendar |
 | `fshij-te-vjetrat.ics` | Anulon seritë e vjetra të kujtuesve |
+| `kujtuesit-shkolles-te-dukshem.ics` | Kalendar i ri me ngjyrë të kuqe, më i dukshëm |
 | `.github/workflows/deploy.yml` | Deploy automatik në GitHub Pages |
 | `.nojekyll` | Parandalon që GitHub Pages të injorojë skedarët |
 
@@ -46,6 +47,14 @@ Shkarko `kujtuesit-shkolles.ics` nga faqja ose hap direkt:
 Ngjarjet janë vetëm **Jon 11:30**, **Jon 12:20** dhe **Ian 12:20**, me alarm 15 minuta para. Festat dhe pushimet janë përjashtuar deri më 18 qershor 2027.
 
 Nëse kishe ngjarje të vjetra, kërko **„Marrja“** në Calendar dhe fshij ato me **Delete Event → All Future Events**.
+
+### Për ngjarje më të dukshme
+Importo `kujtuesit-shkolles-te-dukshem.ics`. Ai krijon një kalendar të veçantë me emrin **„JON & IAN - KUJTUES“** dhe ngjyrë të kuqe. Më pas në iPhone:
+
+1. **Calendars → ⓘ** pranë „JON & IAN - KUJTUES“ → zgjidh ngjyrën **Kuqe/Portokallë**.
+2. Nga Calendars, fik kalendarët e vjetër që nuk i përdor.
+3. Ndrysho pamjen nga **Month** në **Week** ose **List** — ngjarjet Shihen me emër dhe ngjyrë, jo si pika të vogla.
+4. Shto një **widget Calendar** në Home Screen për t'i parë gjithmonë.
 
 ## Test lokal
 ```bash
